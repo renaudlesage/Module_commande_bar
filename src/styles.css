@@ -1,0 +1,648 @@
+:root {
+  /* Palette de l'affiche Blind Test — Bucolique Ferrières Musique */
+  --violet-affiche: #6047A5;
+  --violet-clair: #9E7BC3;
+  --menthe: #B0E1B6;
+  --emeraude: #40AF8B;
+  --creme: #ECE9CC;
+
+  /* Déclinaison écran : violet assombri, plus confortable dans la pénombre */
+  --fond: #3A2B66;
+  --carte: #4A3880;
+  --carte-actif: #5B4699;
+  --trait: #6E55B0;
+  --texte: var(--creme);
+  --texte-doux: #B9A8DE;
+  --accent: var(--menthe);
+  --accent-fonce: var(--emeraude);
+  --sur-accent: #2E2152;
+  --danger: #F0846F;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--fond);
+  color: var(--texte);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+
+.ecran {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 20px 16px 140px;
+}
+
+.ecran.centre {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding-bottom: 20px;
+}
+
+.entete { margin-bottom: 24px; }
+.entete h1 { margin: 0; font-size: 28px; }
+.zone { margin: 4px 0 0; color: var(--texte-doux); }
+.rappel-tarif {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: var(--texte-doux);
+  border-top: 1px solid var(--trait);
+  padding-top: 12px;
+}
+
+.categorie { margin-bottom: 28px; }
+.categorie h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin: 0 0 10px;
+}
+
+.article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--carte);
+  border: 1px solid var(--trait);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+
+.article.actif {
+  background: var(--carte-actif);
+  border-color: var(--accent);
+}
+
+.article-info { display: flex; flex-direction: column; min-width: 0; }
+.article-nom { font-size: 16px; }
+.article-prix { font-size: 13px; color: var(--texte-doux); margin-top: 2px; }
+
+/* Cibles tactiles de 44px : on sert des gens debout, dans le noir */
+.stepper { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.stepper button {
+  width: 44px;
+  height: 44px;
+  font-size: 22px;
+  line-height: 1;
+  border-radius: 10px;
+  border: 1px solid var(--trait);
+  background: var(--fond);
+  color: var(--texte);
+  cursor: pointer;
+}
+.stepper button:disabled { opacity: 0.3; cursor: default; }
+.stepper button:active:not(:disabled) { background: var(--accent); color: var(--sur-accent); }
+.qte { min-width: 28px; text-align: center; font-size: 18px; font-variant-numeric: tabular-nums; }
+
+.commentaire {
+  width: 100%;
+  background: var(--carte);
+  border: 1px solid var(--trait);
+  border-radius: 12px;
+  color: var(--texte);
+  padding: 12px;
+  font-size: 16px;
+  font-family: inherit;
+  resize: none;
+}
+
+.barre-total {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  background: var(--carte);
+  border-top: 1px solid var(--trait);
+  padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.total-detail { display: flex; flex-direction: column; flex-shrink: 0; }
+.total-detail .cases { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.total-detail .euros { font-size: 13px; color: var(--texte-doux); }
+
+.btn {
+  flex: 1;
+  min-height: 50px;
+  border: none;
+  border-radius: 12px;
+  background: var(--accent);
+  color: var(--sur-accent);
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn:disabled { opacity: 0.35; cursor: default; }
+.btn.secondaire {
+  background: transparent;
+  color: var(--texte);
+  border: 1px solid var(--trait);
+  flex: none;
+  padding: 0 24px;
+}
+
+.erreur {
+  color: var(--danger);
+  background: rgba(224, 100, 92, 0.1);
+  border: 1px solid rgba(224, 100, 92, 0.3);
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 15px;
+}
+
+.confirmation { max-width: 340px; }
+.confirmation h1 { font-size: 26px; margin: 0 0 4px; }
+.table-rappel { color: var(--texte-doux); margin: 0 0 24px; }
+.total-confirme {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 24px;
+  background: var(--carte);
+  border: 1px solid var(--accent);
+  border-radius: 16px;
+  margin-bottom: 20px;
+}
+.total-confirme .cases { font-size: 34px; font-weight: 700; }
+.total-confirme .euros { font-size: 16px; color: var(--texte-doux); }
+.consigne { color: var(--texte-doux); font-size: 15px; line-height: 1.5; margin-bottom: 24px; }
+
+/* ---------- Postes bar & service ---------- */
+
+.ecran.large { max-width: 1400px; padding-bottom: 40px; }
+
+.entete-poste {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--trait);
+}
+.entete-poste h1 { margin: 0; font-size: 24px; }
+.compteur { color: var(--texte-doux); font-size: 15px; }
+
+.colonnes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+@media (max-width: 860px) {
+  .colonnes { grid-template-columns: 1fr; }
+}
+
+.colonne h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--texte-doux);
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.badge {
+  background: var(--trait);
+  color: var(--texte);
+  border-radius: 10px;
+  padding: 1px 8px;
+  font-size: 12px;
+}
+
+.vide { color: var(--texte-doux); font-size: 14px; }
+.vide.grand { text-align: center; padding: 60px 0; font-size: 16px; }
+
+.ticket {
+  background: var(--carte);
+  border: 1px solid var(--trait);
+  border-left: 3px solid var(--accent);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+.ticket.urgent { border-left-color: var(--danger); }
+
+.ticket-tete {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.table-num { font-size: 20px; font-weight: 700; }
+.table-num.gros { font-size: 30px; }
+.attente { font-size: 13px; color: var(--texte-doux); font-variant-numeric: tabular-nums; }
+.ticket.urgent .attente { color: var(--danger); }
+
+.lignes { list-style: none; margin: 0; padding: 0; }
+.lignes li { padding: 3px 0; font-size: 16px; }
+.qte-ligne { color: var(--accent); font-weight: 700; }
+
+.note {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  background: var(--fond);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--texte-doux);
+}
+
+.ticket-pied {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--trait);
+}
+.cases-dues { font-size: 14px; color: var(--texte-doux); }
+
+.btn.petit { flex: none; min-height: 40px; padding: 0 18px; font-size: 15px; }
+
+.ticket.service { border-left-width: 4px; margin-bottom: 14px; }
+
+.encaissement {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--trait);
+}
+.a-cocher { display: flex; flex-direction: column; flex: none; }
+.a-cocher .nombre { font-size: 34px; font-weight: 700; line-height: 1; color: var(--accent); }
+.a-cocher .unite { font-size: 12px; color: var(--texte-doux); text-transform: uppercase; letter-spacing: 0.06em; }
+.a-cocher .euros { font-size: 13px; color: var(--texte-doux); margin-top: 2px; }
+
+.champ {
+  width: 100%;
+  background: var(--carte);
+  border: 1px solid var(--trait);
+  border-radius: 12px;
+  color: var(--texte);
+  padding: 14px;
+  font-size: 16px;
+  font-family: inherit;
+  margin-bottom: 10px;
+}
+
+/* ---------- Menu d'accueil ---------- */
+
+.sous-titre { color: var(--texte-doux); margin: 8px 0 32px; max-width: 320px; }
+
+.menu-postes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 280px;
+}
+.menu-postes .btn {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+/* ---------- Administration ---------- */
+
+.lien-discret { color: var(--accent); font-size: 14px; text-decoration: none; }
+.lien-discret:hover { text-decoration: underline; }
+
+.onglets { display: flex; gap: 8px; margin-bottom: 20px; }
+.onglet {
+  background: transparent;
+  border: 1px solid var(--trait);
+  color: var(--texte-doux);
+  border-radius: 10px;
+  padding: 9px 18px;
+  font-size: 15px;
+  cursor: pointer;
+}
+.onglet.actif { background: var(--carte-actif); border-color: var(--accent); color: var(--texte); }
+
+.bloc {
+  background: var(--carte);
+  border: 1px solid var(--trait);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 18px;
+}
+.bloc h2 {
+  font-size: 15px;
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.aide { color: var(--texte-doux); font-size: 14px; line-height: 1.55; margin: 0 0 12px; }
+.aide code {
+  background: var(--fond);
+  padding: 1px 6px;
+  border-radius: 5px;
+  font-size: 13px;
+}
+
+.succes {
+  color: #7fc48a;
+  background: rgba(127, 196, 138, 0.1);
+  border: 1px solid rgba(127, 196, 138, 0.3);
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 15px;
+}
+.avertissement { color: var(--danger); font-size: 14px; margin: 8px 0; }
+
+.champ-label { display: block; font-size: 13px; color: var(--texte-doux); margin-bottom: 12px; }
+.champ-label .champ { margin-top: 5px; }
+
+.ligne-champs { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+.ligne-champs label { font-size: 13px; color: var(--texte-doux); flex: 1; min-width: 110px; }
+.ligne-champs .champ { margin-top: 5px; margin-bottom: 0; }
+
+.case-a-cocher {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0;
+  font-size: 15px;
+  cursor: pointer;
+}
+.case-a-cocher input { width: 20px; height: 20px; }
+
+.tableau { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tableau th {
+  text-align: left;
+  color: var(--texte-doux);
+  font-weight: 500;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--trait);
+}
+.tableau td { padding: 9px 10px; border-bottom: 1px solid var(--trait); }
+.tableau tr.indispo { opacity: 0.4; }
+
+.champ-mini {
+  width: 64px;
+  background: var(--fond);
+  border: 1px solid var(--trait);
+  border-radius: 7px;
+  color: var(--texte);
+  padding: 6px 8px;
+  font-size: 14px;
+}
+.bascule {
+  background: var(--fond);
+  border: 1px solid var(--trait);
+  color: var(--texte);
+  border-radius: 7px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.apercu { margin-top: 14px; }
+.apercu .erreur ul { margin: 6px 0 0; padding-left: 20px; font-size: 14px; }
+
+/* ---------- Planche de QR codes ---------- */
+
+.planche { display: grid; gap: 10px; }
+.planche-2 { grid-template-columns: 1fr; }
+.planche-4 { grid-template-columns: repeat(2, 1fr); }
+.planche-6 { grid-template-columns: repeat(2, 1fr); }
+.planche-9 { grid-template-columns: repeat(3, 1fr); }
+
+.fiche-qr {
+  background: #ffffff;
+  color: #000000;
+  border: 1px dashed #999999;
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+  break-inside: avoid;
+}
+.fiche-tete { display: flex; flex-direction: column; margin-bottom: 8px; }
+.fiche-numero { font-size: 30px; font-weight: 800; line-height: 1; }
+.fiche-zone { font-size: 12px; color: #555555; margin-top: 2px; }
+.fiche-qr img { width: 100%; max-width: 250px; height: auto; display: block; margin: 0 auto; }
+.qr-attente { width: 100%; max-width: 250px; aspect-ratio: 1; background: #eeeeee; margin: 0 auto; }
+.fiche-consigne { font-size: 13px; margin: 8px 0 0; line-height: 1.4; }
+.fiche-consigne span { color: #555555; font-size: 11px; }
+
+@media print {
+  @page { size: A4 portrait; margin: 10mm; }
+  body { background: #ffffff; }
+  .hors-impression { display: none; }
+  .ecran, .ecran.large { padding: 0; max-width: none; }
+  .planche-2 .fiche-qr, .planche-4 .fiche-qr { break-after: auto; }
+  .planche-2 { grid-template-columns: 1fr; }
+  .planche-4 { grid-template-columns: repeat(2, 1fr); }
+  .planche-6 { grid-template-columns: repeat(2, 1fr); }
+  .planche-9 { grid-template-columns: repeat(3, 1fr); }
+  .fiche-qr { border-color: #cccccc; }
+}
+
+/* ---------- Identité Blind Test ---------- */
+
+.logo-buco {
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  display: block;
+  margin: 0 auto 6px;
+}
+
+.bandeau-event {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--emeraude);
+  color: var(--sur-accent);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  border-radius: 999px;
+  margin-bottom: 22px;
+}
+
+/* Accent émeraude sur les intitulés de catégorie, comme les titres de l'affiche */
+.categorie h2 { color: var(--menthe); }
+.colonne h2 { color: var(--menthe); }
+
+/* Lueur discrète derrière les écrans centrés, rappel des rayons de l'affiche */
+.ecran.centre::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 22%, rgba(176, 225, 182, 0.13), transparent 58%),
+    radial-gradient(ellipse at 50% 85%, rgba(64, 175, 139, 0.11), transparent 62%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.entete { text-align: center; }
+.entete .logo-buco { max-width: 210px; margin-bottom: 14px; }
+
+.pied-event {
+  text-align: center;
+  color: var(--texte-doux);
+  font-size: 12px;
+  margin-top: 28px;
+  padding-top: 14px;
+  border-top: 1px solid var(--trait);
+}
+
+/* Les fiches QR gardent un fond blanc : c'est ce qui s'imprime et se scanne */
+.fiche-qr { border-color: var(--violet-clair); }
+.fiche-numero { color: var(--violet-affiche); }
+.fiche-marque {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--violet-affiche);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+/* ---------- Invite d'installation PWA ---------- */
+
+.invite-install {
+  background: var(--carte);
+  border: 1px solid var(--trait);
+  border-radius: 14px;
+  padding: 16px;
+  margin-top: 28px;
+  width: 100%;
+  max-width: 320px;
+  text-align: left;
+}
+.invite-texte strong { display: block; font-size: 15px; margin-bottom: 6px; }
+.invite-texte ol { margin: 8px 0 0; padding-left: 20px; font-size: 14px; line-height: 1.7; }
+.aide-mini { color: var(--texte-doux); font-size: 13px; line-height: 1.5; margin: 6px 0 0; }
+.pictogramme {
+  display: inline-block;
+  background: var(--fond);
+  border: 1px solid var(--trait);
+  border-radius: 5px;
+  padding: 0 6px;
+  font-size: 13px;
+}
+.invite-actions { display: flex; gap: 10px; align-items: center; margin-top: 14px; }
+.invite-actions .btn.petit { flex: none; }
+
+/* ---------- Interrupteur de service & annulation ---------- */
+
+.entete-droite { display: flex; align-items: center; gap: 14px; }
+
+.interrupteur {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--trait);
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  background: var(--carte);
+  color: var(--texte);
+}
+.interrupteur .pastille {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--texte-doux);
+}
+.interrupteur.ouvert { border-color: var(--emeraude); }
+.interrupteur.ouvert .pastille { background: var(--emeraude); }
+.interrupteur.ferme { border-color: var(--danger); color: var(--danger); }
+.interrupteur.ferme .pastille { background: var(--danger); }
+
+.avertissement.bandeau {
+  background: rgba(240, 132, 111, 0.12);
+  border: 1px solid rgba(240, 132, 111, 0.35);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.actions-ticket { display: flex; align-items: center; gap: 8px; }
+.bascule.discret { color: var(--texte-doux); border-color: transparent; }
+.bascule.discret:hover { border-color: var(--trait); color: var(--texte); }
+
+.confirmation-annulation {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--trait);
+}
+.confirmation-annulation p { margin: 0 0 8px; font-size: 14px; }
+.champ-mini.large { width: 100%; margin-bottom: 8px; }
+.actions-annulation { display: flex; gap: 8px; }
+.btn-danger {
+  background: var(--danger);
+  color: var(--sur-accent);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ---------- Récapitulatif ---------- */
+
+.chiffres {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.chiffre {
+  background: var(--carte);
+  border: 1px solid var(--trait);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.chiffre.fort { border-color: var(--menthe); }
+.chiffre.alerte { border-color: var(--danger); }
+.chiffre .valeur { font-size: 30px; font-weight: 700; line-height: 1.1; }
+.chiffre.fort .valeur { color: var(--menthe); }
+.chiffre.alerte .valeur { color: var(--danger); }
+.chiffre .etiquette {
+  font-size: 12px;
+  color: var(--texte-doux);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.chiffre .detail { font-size: 14px; color: var(--texte-doux); margin-top: 2px; }
+
+
+/* Article offert : repéré d'un coup d'œil dans la carte */
+.article-prix.offert {
+  color: var(--emeraude);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 12px;
+}
