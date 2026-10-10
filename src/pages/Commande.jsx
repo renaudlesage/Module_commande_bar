@@ -14,6 +14,7 @@ export default function Commande() {
   const [erreur, setErreur] = useState(null);
   const [confirmation, setConfirmation] = useState(null);
   const [aVerifier, setAVerifier] = useState(false);
+  const [commentaire, setCommentaire] = useState('');
   const [serviceOuvert, setServiceOuvert] = useState(true);
   const [messageFerme, setMessageFerme] = useState('');
 
@@ -94,7 +95,7 @@ export default function Commande() {
     const { data, error } = await supabase.rpc('bar_passer_commande', {
       p_token: token,
       p_lignes: lignes,
-      p_commentaire: null,
+      p_commentaire: commentaire.trim() || null,
     });
 
     if (error) {
@@ -119,6 +120,7 @@ export default function Commande() {
 
   function nouvelleCommande() {
     setQuantites({});
+    setCommentaire('');
     setConfirmation(null);
     setAVerifier(false);
   }
@@ -170,6 +172,10 @@ export default function Commande() {
               </li>
             ))}
           </ul>
+
+          {commentaire.trim() && (
+            <p className="note">{commentaire.trim()}</p>
+          )}
 
           <div className="total-confirme">
             <span className="cases">{libelleCases(totalCases)}</span>
@@ -258,6 +264,18 @@ export default function Commande() {
           })}
         </section>
       ))}
+
+      <section className="categorie">
+        <h2>Remarque</h2>
+        <textarea
+          className="commentaire"
+          rows={2}
+          maxLength={200}
+          placeholder="Sans glaçons, verre en plus…"
+          value={commentaire}
+          onChange={(e) => setCommentaire(e.target.value)}
+        />
+      </section>
 
       {erreur && <p className="erreur">{erreur}</p>}
 
