@@ -677,3 +677,31 @@ body {
   white-space: nowrap;
 }
 .veille.active { color: var(--emeraude); border-color: var(--emeraude); }
+
+/* ---------- Récapitulatif avant envoi ---------- */
+
+.confirmation.large { max-width: 420px; width: 100%; }
+
+.recap {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  text-align: left;
+  border-top: 1px solid var(--trait);
+}
+.recap li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 2px;
+  border-bottom: 1px solid var(--trait);
+  font-size: 16px;
+}
+.recap-qte { color: var(--accent); font-weight: 700; min-width: 28px; }
+.recap-nom { flex: 1; }
+.recap-cases {
+  color: var(--texte-doux);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}

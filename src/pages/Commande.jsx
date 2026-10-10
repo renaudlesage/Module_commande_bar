@@ -13,6 +13,7 @@ export default function Commande() {
   const [envoi, setEnvoi] = useState(false);
   const [erreur, setErreur] = useState(null);
   const [confirmation, setConfirmation] = useState(null);
+  const [aVerifier, setAVerifier] = useState(false);
   const [serviceOuvert, setServiceOuvert] = useState(true);
   const [messageFerme, setMessageFerme] = useState('');
 
@@ -62,6 +63,14 @@ export default function Commande() {
     [articles, quantites]
   );
 
+  // Le détail de ce qui part réellement, pour le récapitulatif
+  const selection = useMemo(
+    () => articles
+      .filter((a) => (quantites[a.id] || 0) > 0)
+      .map((a) => ({ ...a, quantite: quantites[a.id] })),
+    [articles, quantites]
+  );
+
   const nbArticles = useMemo(
     () => Object.values(quantites).reduce((s, q) => s + q, 0),
     [quantites]
@@ -98,17 +107,20 @@ export default function Commande() {
       } else {
         setErreur("L'envoi a échoué. Vérifie ta connexion et réessaie.");
       }
+      setAVerifier(false);
       setEnvoi(false);
       return;
     }
 
     setConfirmation(data);
+    setAVerifier(false);
     setEnvoi(false);
   }
 
   function nouvelleCommande() {
     setQuantites({});
     setConfirmation(null);
+    setAVerifier(false);
   }
 
   if (chargement) {
@@ -133,6 +145,49 @@ export default function Commande() {
           <p className="consigne">{messageFerme}</p>
           <button className="btn secondaire" onClick={() => window.location.reload()}>
             Réessayer
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (aVerifier) {
+    return (
+      <div className="ecran centre">
+        <div className="confirmation large">
+          <img className="logo-buco" src="/logo-bucolique.png" alt="Bucolique Ferrières Musique" />
+          <h1>Vérifie ta commande</h1>
+          <p className="table-rappel">Table {table.numero}</p>
+
+          <ul className="recap">
+            {selection.map((a) => (
+              <li key={a.id}>
+                <span className="recap-qte">{a.quantite}×</span>
+                <span className="recap-nom">{a.nom}</span>
+                <span className="recap-cases">
+                  {a.prix_cases === 0 ? 'offert' : a.quantite * a.prix_cases}
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          <div className="total-confirme">
+            <span className="cases">{libelleCases(totalCases)}</span>
+            <span className="euros">{enEuros(totalCases)}</span>
+          </div>
+
+          {erreur && <p className="erreur">{erreur}</p>}
+
+          <button className="btn" disabled={envoi} onClick={envoyer}>
+            {envoi ? 'Envoi…' : 'Confirmer et envoyer'}
+          </button>
+          <button
+            className="btn secondaire"
+            disabled={envoi}
+            onClick={() => setAVerifier(false)}
+            style={{ marginTop: 10 }}
+          >
+            Modifier
           </button>
         </div>
       </div>
@@ -213,10 +268,10 @@ export default function Commande() {
         </div>
         <button
           className="btn"
-          disabled={nbArticles === 0 || envoi}
-          onClick={envoyer}
+          disabled={nbArticles === 0}
+          onClick={() => { setErreur(null); setAVerifier(true); }}
         >
-          {envoi ? 'Envoi…' : 'Envoyer la commande'}
+          Vérifier la commande
         </button>
       </div>
     </div>
