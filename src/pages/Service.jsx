@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase, enEuros, libelleCases } from '../lib/supabase';
 
@@ -24,6 +24,35 @@ function ecrireServeur(nom) {
   }
 }
 
+const CLE_SON = 'bar-son';
+
+function lireSon() {
+  try {
+    return localStorage.getItem(CLE_SON) !== 'off';
+  } catch {
+    return true;
+  }
+}
+
+// Bip de synthèse : pas de fichier à charger, donc rien qui puisse manquer
+// au mauvais moment. Deux notes courtes, audibles par-dessus la musique.
+function bip(ctx) {
+  if (!ctx) return;
+  const maintenant = ctx.currentTime;
+  [0, 0.18].forEach((decalage, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.value = i === 0 ? 880 : 1175;
+    gain.gain.setValueAtTime(0.0001, maintenant + decalage);
+    gain.gain.exponentialRampToValueAtTime(0.35, maintenant + decalage + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, maintenant + decalage + 0.15);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(maintenant + decalage);
+    osc.stop(maintenant + decalage + 0.16);
+  });
+}
+
 export default function Service() {
   const [serveur, setServeurEtat] = useState(lireServeur);
   const [nomSaisi, setNomSaisi] = useState('');
@@ -31,9 +60,34 @@ export default function Service() {
   function setServeur(nom) {
     ecrireServeur(nom);
     setServeurEtat(nom);
+    if (nom && !audio.current) {
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (Ctx) audio.current = new Ctx();
+      } catch {
+        // pas de son disponible : l'alerte visuelle suffira
+      }
+    }
+    audio.current?.resume?.().catch(() => {});
+  }
+
+  function basculerSon() {
+    const suivant = !son;
+    setSon(suivant);
+    try {
+      localStorage.setItem(CLE_SON, suivant ? 'on' : 'off');
+    } catch { /* sans stockage, le choix vaut pour la session */ }
+    if (suivant) { audio.current?.resume?.().catch(() => {}); bip(audio.current); }
   }
   const [commandes, setCommandes] = useState([]);
   const [erreur, setErreur] = useState(null);
+  const [son, setSon] = useState(lireSon);
+  const [nouvelles, setNouvelles] = useState([]);
+
+  // Le contexte audio n'est créé qu'au clic sur « Commencer » : les
+  // navigateurs refusent tout son déclenché sans geste de l'utilisateur.
+  const audio = useRef(null);
+  const vues = useRef(null); // null tant que la première liste n'est pas arrivée
 
   const charger = useCallback(async () => {
     const { data, error } = await supabase
@@ -42,8 +96,26 @@ export default function Service() {
       .eq('statut', 'prete')
       .order('created_at', { ascending: true });
 
-    if (error) setErreur('Lecture impossible : ' + error.message);
-    else { setCommandes(data || []); setErreur(null); }
+    if (error) { setErreur('Lecture impossible : ' + error.message); return; }
+
+    const liste = data || [];
+    setCommandes(liste);
+    setErreur(null);
+
+    // Alerte uniquement sur ce qui n'était pas déjà là. Le premier
+    // chargement ne sonne pas, sinon chaque ouverture d'écran ferait
+    // croire à de nouvelles commandes.
+    const ids = new Set(liste.map((c) => c.id));
+    if (vues.current) {
+      const arrivees = liste.filter((c) => !vues.current.has(c.id)).map((c) => c.id);
+      if (arrivees.length) {
+        setNouvelles(arrivees);
+        if (lireSon()) bip(audio.current);
+        navigator.vibrate?.([120, 60, 120]);
+        setTimeout(() => setNouvelles([]), 6000);
+      }
+    }
+    vues.current = ids;
   }, []);
 
   useEffect(() => { if (serveur) charger(); }, [serveur, charger]);
@@ -101,6 +173,13 @@ export default function Service() {
         <h1>Service — {serveur}</h1>
         <div className="entete-droite">
           <span className="compteur">{commandes.length} à servir</span>
+          <button
+            className={'bascule son' + (son ? ' actif' : '')}
+            onClick={basculerSon}
+            title={son ? 'Son activé — toucher pour couper' : 'Son coupé — toucher pour activer'}
+          >
+            {son ? '🔔 Son' : '🔕 Muet'}
+          </button>
           <button className="bascule discret" onClick={() => setServeur('')}>
             Changer de serveur
           </button>
@@ -115,7 +194,10 @@ export default function Service() {
       )}
 
       {commandes.map((c) => (
-        <article key={c.id} className="ticket service">
+        <article
+          key={c.id}
+          className={'ticket service' + (nouvelles.includes(c.id) ? ' nouveau' : '')}
+        >
           <div className="ticket-tete">
             <span className="table-num gros">{c.bar_tables?.numero}</span>
             {c.bar_tables?.zone && <span className="zone">{c.bar_tables.zone}</span>}
