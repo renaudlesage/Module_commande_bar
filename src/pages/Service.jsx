@@ -92,7 +92,7 @@ export default function Service() {
   const charger = useCallback(async () => {
     const { data, error } = await supabase
       .from('bar_commandes')
-      .select('id, cases_dues, commentaire, created_at, bar_tables(numero, zone), bar_lignes(libelle, quantite)')
+      .select('id, cases_dues, commentaire, created_at, pris_par, bar_tables(numero, zone), bar_lignes(libelle, quantite)')
       .eq('statut', 'prete')
       .order('created_at', { ascending: true });
 
@@ -129,6 +129,34 @@ export default function Service() {
     const t = setInterval(charger, 20000);
     return () => { supabase.removeChannel(canal); clearInterval(t); };
   }, [serveur, charger]);
+
+  // Prise atomique : la condition « pris_par is null » est évaluée par
+  // Postgres, donc deux serveurs qui appuient en même temps ne peuvent
+  // pas réussir tous les deux.
+  async function prendre(id) {
+    const { data, error } = await supabase
+      .from('bar_commandes')
+      .update({ pris_par: serveur, pris_at: new Date().toISOString() })
+      .eq('id', id)
+      .is('pris_par', null)
+      .select('id');
+
+    if (error) { setErreur('Prise impossible : ' + error.message); return; }
+    if (!data || data.length === 0) {
+      setErreur('Quelqu\'un vient de prendre cette commande.');
+      setTimeout(() => setErreur(null), 4000);
+    }
+    charger();
+  }
+
+  async function relacher(id) {
+    const { error } = await supabase
+      .from('bar_commandes')
+      .update({ pris_par: null, pris_at: null })
+      .eq('id', id);
+    if (error) setErreur('Mise à jour refusée : ' + error.message);
+    charger();
+  }
 
   async function marquerServie(id) {
     setCommandes((c) => c.filter((x) => x.id !== id));
@@ -196,7 +224,9 @@ export default function Service() {
       {commandes.map((c) => (
         <article
           key={c.id}
-          className={'ticket service' + (nouvelles.includes(c.id) ? ' nouveau' : '')}
+          className={'ticket service'
+            + (nouvelles.includes(c.id) ? ' nouveau' : '')
+            + (c.pris_par && c.pris_par !== serveur ? ' pris-autre' : '')}
         >
           <div className="ticket-tete">
             <span className="table-num gros">{c.bar_tables?.numero}</span>
@@ -211,15 +241,30 @@ export default function Service() {
 
           {c.commentaire && <p className="note">{c.commentaire}</p>}
 
+          {c.pris_par && (
+            <p className={'prise' + (c.pris_par === serveur ? ' moi' : '')}>
+              {c.pris_par === serveur ? 'Tu prends cette commande' : `Pris par ${c.pris_par}`}
+              <button className="bascule discret" onClick={() => relacher(c.id)}>
+                Relâcher
+              </button>
+            </p>
+          )}
+
           <div className="encaissement">
             <div className="a-cocher">
               <span className="nombre">{c.cases_dues}</span>
               <span className="unite">cases à cocher</span>
               <span className="euros">{enEuros(c.cases_dues)}</span>
             </div>
-            <button className="btn" onClick={() => marquerServie(c.id)}>
-              Servie et cochée
-            </button>
+            {c.pris_par ? (
+              <button className="btn" onClick={() => marquerServie(c.id)}>
+                Servie et cochée
+              </button>
+            ) : (
+              <button className="btn" onClick={() => prendre(c.id)}>
+                Je prends
+              </button>
+            )}
           </div>
         </article>
       ))}

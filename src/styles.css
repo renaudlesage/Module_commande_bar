@@ -724,3 +724,23 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .ticket.service.nouveau { animation: none; }
 }
+
+/* ---------- Prise en charge par un serveur ---------- */
+
+.prise {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--fond);
+  font-size: 14px;
+  color: var(--texte-doux);
+}
+.prise.moi { color: var(--emeraude); }
+
+/* Pris par quelqu'un d'autre : visible mais en retrait, pour que
+   l'œil aille d'abord sur ce qui reste à prendre. */
+.ticket.service.pris-autre { opacity: 0.55; border-left-color: var(--trait); }
