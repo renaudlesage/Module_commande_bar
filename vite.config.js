@@ -22,7 +22,10 @@ export default defineConfig({
         start_url: '/',
         scope: '/',
         display: 'standalone',
-        orientation: 'portrait',
+        // Pas de verrou d'orientation : l'écran bar à trois colonnes
+        // est fait pour le paysage sur tablette, le formulaire client
+        // pour le portrait sur téléphone.
+        orientation: 'any',
         background_color: '#3A2B66',
         theme_color: '#3A2B66',
         icons: [
