@@ -8,7 +8,6 @@ export default function Commande() {
   const [table, setTable] = useState(null);
   const [articles, setArticles] = useState([]);
   const [quantites, setQuantites] = useState({});
-  const [commentaire, setCommentaire] = useState('');
 
   const [chargement, setChargement] = useState(true);
   const [envoi, setEnvoi] = useState(false);
@@ -86,7 +85,7 @@ export default function Commande() {
     const { data, error } = await supabase.rpc('bar_passer_commande', {
       p_token: token,
       p_lignes: lignes,
-      p_commentaire: commentaire.trim() || null,
+      p_commentaire: null,
     });
 
     if (error) {
@@ -109,7 +108,6 @@ export default function Commande() {
 
   function nouvelleCommande() {
     setQuantites({});
-    setCommentaire('');
     setConfirmation(null);
   }
 
@@ -205,18 +203,6 @@ export default function Commande() {
           })}
         </section>
       ))}
-
-      <section className="categorie">
-        <h2>Remarque</h2>
-        <textarea
-          className="commentaire"
-          rows={2}
-          maxLength={200}
-          placeholder="Sans glaçons, verre en plus…"
-          value={commentaire}
-          onChange={(e) => setCommentaire(e.target.value)}
-        />
-      </section>
 
       {erreur && <p className="erreur">{erreur}</p>}
 
