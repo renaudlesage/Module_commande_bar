@@ -18,6 +18,7 @@ export default function Bar() {
   const [erreur, setErreur] = useState(null);
   const [tick, setTick] = useState(0); // rafraîchit les compteurs d'attente
   const [serviceOuvert, setServiceOuvert] = useState(true);
+  const [veilleBloquee, setVeilleBloquee] = useState(false);
   const [aAnnuler, setAAnnuler] = useState(null); // commande en attente de confirmation
   const [motif, setMotif] = useState('');
 
@@ -59,6 +60,47 @@ export default function Bar() {
     const t = setInterval(() => { charger(); setTick((n) => n + 1); }, 20000);
     return () => clearInterval(t);
   }, [charger]);
+
+  // Service ouvert : la tablette ne doit pas s'éteindre. Le verrou est
+  // relâché dès la fermeture du service, pour ne pas vider la batterie
+  // après le coup de feu.
+  useEffect(() => {
+    if (!serviceOuvert || !('wakeLock' in navigator)) {
+      setVeilleBloquee(false);
+      return;
+    }
+
+    let verrou = null;
+    let abandonne = false;
+
+    async function demander() {
+      try {
+        verrou = await navigator.wakeLock.request('screen');
+        if (abandonne) { verrou.release(); return; }
+        setVeilleBloquee(true);
+        // Le système relâche le verrou tout seul dans certains cas
+        verrou.addEventListener('release', () => setVeilleBloquee(false));
+      } catch {
+        // Batterie faible, économiseur d'énergie, onglet masqué : on continue
+        setVeilleBloquee(false);
+      }
+    }
+
+    // Le verrou saute à chaque passage en arrière-plan : on le reprend
+    function auRetour() {
+      if (document.visibilityState === 'visible') demander();
+    }
+
+    demander();
+    document.addEventListener('visibilitychange', auRetour);
+
+    return () => {
+      abandonne = true;
+      document.removeEventListener('visibilitychange', auRetour);
+      if (verrou) verrou.release().catch(() => {});
+      setVeilleBloquee(false);
+    };
+  }, [serviceOuvert]);
 
   async function changerStatut(id, statut) {
     // Mise à jour optimiste : le bar ne doit jamais attendre le réseau
@@ -106,6 +148,16 @@ export default function Bar() {
             <span className="pastille" />
             {serviceOuvert ? 'Service ouvert' : 'Service fermé'}
           </button>
+          {serviceOuvert && (
+            <span
+              className={'veille' + (veilleBloquee ? ' active' : '')}
+              title={veilleBloquee
+                ? "L'écran reste allumé tant que le service est ouvert"
+                : "La mise en veille n'a pas pu être bloquée — règle-la dans les paramètres de la tablette"}
+            >
+              {veilleBloquee ? 'Écran maintenu' : 'Veille non bloquée'}
+            </span>
+          )}
         </div>
       </header>
 
