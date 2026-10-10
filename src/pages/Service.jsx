@@ -25,6 +25,15 @@ function ecrireServeur(nom) {
 }
 
 const CLE_SON = 'bar-son';
+const CLE_SERVICE = 'bar-service-en-cours';
+
+function lireServiceEnCours() {
+  try {
+    return localStorage.getItem(CLE_SERVICE) === 'on';
+  } catch {
+    return false;
+  }
+}
 
 function lireSon() {
   try {
@@ -71,6 +80,14 @@ export default function Service() {
     audio.current?.resume?.().catch(() => {});
   }
 
+  function basculerService() {
+    const suivant = !enService;
+    setEnService(suivant);
+    try {
+      localStorage.setItem(CLE_SERVICE, suivant ? 'on' : 'off');
+    } catch { /* sans stockage, le choix vaut pour la session */ }
+  }
+
   function basculerSon() {
     const suivant = !son;
     setSon(suivant);
@@ -83,6 +100,8 @@ export default function Service() {
   const [erreur, setErreur] = useState(null);
   const [son, setSon] = useState(lireSon);
   const [nouvelles, setNouvelles] = useState([]);
+  const [enService, setEnService] = useState(lireServiceEnCours);
+  const [veilleBloquee, setVeilleBloquee] = useState(false);
 
   // Le contexte audio n'est créé qu'au clic sur « Commencer » : les
   // navigateurs refusent tout son déclenché sans geste de l'utilisateur.
@@ -158,6 +177,44 @@ export default function Service() {
     charger();
   }
 
+  // Service en cours : l'écran du téléphone reste allumé. Relâché dès
+  // que le serveur coupe, pour ne pas vider sa batterie en fin de soirée.
+  useEffect(() => {
+    if (!enService || !('wakeLock' in navigator)) {
+      setVeilleBloquee(false);
+      return;
+    }
+
+    let verrou = null;
+    let abandonne = false;
+
+    async function demander() {
+      try {
+        verrou = await navigator.wakeLock.request('screen');
+        if (abandonne) { verrou.release(); return; }
+        setVeilleBloquee(true);
+        verrou.addEventListener('release', () => setVeilleBloquee(false));
+      } catch {
+        setVeilleBloquee(false);
+      }
+    }
+
+    // Le système relâche le verrou à chaque passage en arrière-plan
+    function auRetour() {
+      if (document.visibilityState === 'visible') demander();
+    }
+
+    demander();
+    document.addEventListener('visibilitychange', auRetour);
+
+    return () => {
+      abandonne = true;
+      document.removeEventListener('visibilitychange', auRetour);
+      if (verrou) verrou.release().catch(() => {});
+      setVeilleBloquee(false);
+    };
+  }, [enService]);
+
   async function marquerServie(id) {
     setCommandes((c) => c.filter((x) => x.id !== id));
     const { error } = await supabase
@@ -201,6 +258,20 @@ export default function Service() {
         <h1>Service — {serveur}</h1>
         <div className="entete-droite">
           <span className="compteur">{commandes.length} à servir</span>
+          <button
+            className={'interrupteur' + (enService ? ' ouvert' : ' ferme')}
+            onClick={basculerService}
+            title={enService
+              ? (veilleBloquee
+                  ? "Service en cours — l'écran reste allumé"
+                  : "Service en cours, mais la veille n'a pas pu être bloquée")
+              : 'Toucher pour démarrer le service et garder l\'écran allumé'}
+          >
+            <span className="pastille" />
+            {enService
+              ? (veilleBloquee ? 'Service en cours' : 'Service — veille non bloquée')
+              : 'Service en pause'}
+          </button>
           <button
             className={'bascule son' + (son ? ' actif' : '')}
             onClick={basculerSon}

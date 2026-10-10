@@ -744,3 +744,8 @@ body {
 /* Pris par quelqu'un d'autre : visible mais en retrait, pour que
    l'œil aille d'abord sur ce qui reste à prendre. */
 .ticket.service.pris-autre { opacity: 0.55; border-left-color: var(--trait); }
+
+/* L'en-tête service porte plusieurs commandes : elle doit pouvoir passer
+   à la ligne sur un téléphone plutôt que déborder. */
+.entete-poste { flex-wrap: wrap; }
+.entete-droite { flex-wrap: wrap; justify-content: flex-end; }
