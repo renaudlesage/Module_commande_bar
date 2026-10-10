@@ -1,0 +1,11 @@
+-- ============================================================
+-- Migration 005 — La case vaut 1,00 €
+-- Carte de 10 € = 10 cases (auparavant 20 cases à 0,50 €).
+-- DÉJÀ APPLIQUÉE en production le 10/10/2026.
+--
+-- Les conversions cases -> euros passent de * 0,5 à * 1 dans
+-- bar_passer_commande et dans la vue bar_recap_soiree.
+-- Les prix des articles ont été réalignés par bar_import_carte :
+-- bières, vin, blanc-cola et chips à 3 cases, gin tonic à 6,
+-- softs à 2, bol saucisson à 4, eau plate offerte.
+-- ============================================================

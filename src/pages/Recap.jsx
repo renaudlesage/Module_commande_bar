@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase, enEuros, CASE_EN_EUROS } from '../lib/supabase';
 
-const CASES_PAR_CARTE = 20; // carte de 10 € à cases de 0,50 €
+const CASES_PAR_CARTE = 10; // carte de 10 € à cases de 1,00 €
 
 function aujourdhui() {
   const d = new Date();

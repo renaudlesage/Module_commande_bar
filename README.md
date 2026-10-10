@@ -3,7 +3,7 @@
 Module de commande de boissons par QR code.
 Le client scanne le QR posé sur sa table, commande, et paie en cases sur une carte à cocher.
 
-**Unité de compte : la case. 1 case = 0,50 € — 1 carte = 10 € = 20 cases.**
+**Unité de compte : la case. 1 case = 1,00 € — 1 carte = 10 € = 10 cases.**
 Les prix sont stockés en cases (entiers) ; les euros sont un affichage dérivé.
 
 ## Stack
@@ -93,7 +93,7 @@ elles sont lues au build, pas à l'exécution.
 CSV à trois colonnes : `categorie`, `nom`, `prix_euros`.
 Modèle téléchargeable depuis `/admin`, ou `public/modele-carte.csv`.
 
-Les prix doivent tomber sur un multiple de 0,50 €. L'import est atomique :
+Les prix doivent tomber sur un multiple de 1,00 €. L'import est atomique :
 si une ligne est invalide, rien n'est écrit.
 
 ## QR codes

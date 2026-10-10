@@ -102,7 +102,7 @@ function OngletCarte() {
           const cases = euros / CASE_EN_EUROS;
           if (euros > 0 && Math.abs(cases - Math.round(cases)) > 1e-9) {
             problemes.push(
-              `Ligne ${numero} : ${euros.toFixed(2)} € ne tombe pas sur un multiple de 0,50 €`
+              `Ligne ${numero} : ${euros.toFixed(2)} € ne tombe pas sur un multiple de 1,00 €`
             );
             return;
           }
@@ -167,7 +167,7 @@ function OngletCarte() {
           Article offert : <code>0</code>, <code>gratuit</code> ou <code>offert</code>.
           Le fichier doit être enregistré en <strong>CSV UTF-8</strong>, sinon les
           accents se cassent.
-          Les prix doivent tomber sur un multiple de 0,50 € — c'est la granularité
+          Les prix doivent tomber sur un multiple de 1,00 € — c'est la granularité
           des cases, on ne peut pas cocher une demi-case.
         </p>
 

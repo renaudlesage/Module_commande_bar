@@ -170,7 +170,7 @@ export default function Commande() {
         <img className="logo-buco" src="/logo-bucolique.png" alt="Bucolique Ferrières Musique" />
         <h1>Table {table.numero}</h1>
         {table.zone && <p className="zone">{table.zone}</p>}
-        <p className="rappel-tarif">1 case = 0,50 € · 1 carte = 20 cases</p>
+        <p className="rappel-tarif">1 case = 1 € · 1 carte = 10 cases</p>
       </header>
 
       {parCategorie.map((groupe) => (

@@ -32,8 +32,8 @@ export const supabase = createClient(
   erreurConfig ? 'cle-absente' : key
 );
 
-// 1 case = 0,50 €
-export const CASE_EN_EUROS = 0.5;
+// 1 case = 1,00 € ; une carte de 10 € vaut 10 cases.
+export const CASE_EN_EUROS = 1;
 
 export function enEuros(cases) {
   if (cases === 0) return 'offert';

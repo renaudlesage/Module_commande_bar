@@ -101,7 +101,7 @@ export default function AdminQR() {
               : <div className="qr-attente" />}
             <p className="fiche-consigne">
               Scanne pour commander<br />
-              <span>1 case = 0,50 €</span>
+              <span>1 case = 1 € · carte de 10 € = 10 cases</span>
             </p>
           </div>
         ))}
