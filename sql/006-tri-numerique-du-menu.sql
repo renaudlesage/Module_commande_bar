@@ -1,0 +1,12 @@
+-- ============================================================
+-- Migration 006 — Tri numérique du menu
+-- DÉJÀ APPLIQUÉE en production le 10/10/2026.
+--
+-- bar_menu triait sur « x->>'ordre' », c'est-à-dire sur le TEXTE :
+-- « 10 » passait avant « 2 ». Le tri se fait désormais en SQL sur les
+-- entiers, avant l'agrégation JSON.
+--
+-- Les ordres ont été renumérotés : catégories 1..5
+-- (Bière, Alcool, Vins de Liège, Soft, Snack) et articles 1..n
+-- à l'intérieur de chaque catégorie.
+-- ============================================================
