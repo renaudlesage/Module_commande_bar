@@ -2,9 +2,36 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase, enEuros, libelleCases } from '../lib/supabase';
 
+// Le prénom du serveur est conservé sur l'appareil : sur une soirée, il est
+// saisi une fois et plus jamais. Le bouton « Changer de serveur » reste le
+// moyen d'en changer aux relèves.
+const CLE_SERVEUR = 'bar-serveur';
+
+function lireServeur() {
+  try {
+    return localStorage.getItem(CLE_SERVEUR) || '';
+  } catch {
+    return ''; // navigation privée, stockage bloqué : on retombe sur la saisie
+  }
+}
+
+function ecrireServeur(nom) {
+  try {
+    if (nom) localStorage.setItem(CLE_SERVEUR, nom);
+    else localStorage.removeItem(CLE_SERVEUR);
+  } catch {
+    // sans stockage, le prénom vaut pour la session en cours
+  }
+}
+
 export default function Service() {
-  const [serveur, setServeur] = useState('');
+  const [serveur, setServeurEtat] = useState(lireServeur);
   const [nomSaisi, setNomSaisi] = useState('');
+
+  function setServeur(nom) {
+    ecrireServeur(nom);
+    setServeurEtat(nom);
+  }
   const [commandes, setCommandes] = useState([]);
   const [erreur, setErreur] = useState(null);
 
