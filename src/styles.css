@@ -423,11 +423,13 @@ body {
 
 /* ---------- Planche de QR codes ---------- */
 
-.planche { display: grid; gap: 10px; }
-.planche-2 { grid-template-columns: 1fr; }
-.planche-4 { grid-template-columns: repeat(2, 1fr); }
-.planche-6 { grid-template-columns: repeat(2, 1fr); }
-.planche-9 { grid-template-columns: repeat(3, 1fr); }
+/* Une .planche = une page A4. Lignes ET colonnes sont fixées, sinon le
+   nombre par page n'est qu'indicatif et le navigateur coupe au hasard. */
+.planche { display: grid; gap: 10px; margin-bottom: 24px; }
+.planche-2 { grid-template-columns: 1fr; grid-template-rows: repeat(2, 1fr); }
+.planche-4 { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); }
+.planche-6 { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); }
+.planche-9 { grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); }
 
 .fiche-qr {
   background: #ffffff;
@@ -441,7 +443,17 @@ body {
 .fiche-tete { display: flex; flex-direction: column; margin-bottom: 8px; }
 .fiche-numero { font-size: 30px; font-weight: 800; line-height: 1; }
 .fiche-zone { font-size: 12px; color: #555555; margin-top: 2px; }
-.fiche-qr img { width: 100%; max-width: 250px; height: auto; display: block; margin: 0 auto; }
+.fiche-qr { display: flex; flex-direction: column; justify-content: center; }
+.fiche-qr img {
+  width: 100%;
+  max-width: 250px;
+  height: auto;
+  min-height: 0;
+  flex: 0 1 auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
 .qr-attente { width: 100%; max-width: 250px; aspect-ratio: 1; background: #eeeeee; margin: 0 auto; }
 .fiche-consigne { font-size: 13px; margin: 8px 0 0; line-height: 1.4; }
 .fiche-consigne span { color: #555555; font-size: 11px; }
@@ -451,12 +463,20 @@ body {
   body { background: #ffffff; }
   .hors-impression { display: none; }
   .ecran, .ecran.large { padding: 0; max-width: none; }
-  .planche-2 .fiche-qr, .planche-4 .fiche-qr { break-after: auto; }
-  .planche-2 { grid-template-columns: 1fr; }
-  .planche-4 { grid-template-columns: repeat(2, 1fr); }
-  .planche-6 { grid-template-columns: repeat(2, 1fr); }
-  .planche-9 { grid-template-columns: repeat(3, 1fr); }
-  .fiche-qr { border-color: #cccccc; }
+
+  /* Chaque planche occupe exactement la zone imprimable d'une A4
+     (297mm - 2 x 10mm de marge) et force un saut après elle. */
+  .planche {
+    height: 277mm;
+    margin: 0;
+    break-after: page;
+    page-break-after: always;
+  }
+  .planche:last-child { break-after: auto; page-break-after: auto; }
+
+  .fiche-qr { border-color: #cccccc; overflow: hidden; }
+  /* Le QR occupe la place restante de la cellule, sans la déborder */
+  .fiche-qr img { max-width: 100%; max-height: 100%; width: auto; }
 }
 
 /* ---------- Identité Blind Test ---------- */

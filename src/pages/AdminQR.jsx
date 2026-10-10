@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import QRCode from 'qrcode';
 import { supabase } from '../lib/supabase';
@@ -47,6 +47,15 @@ export default function AdminQR() {
     return () => { annule = true; };
   }, [base, tables]);
 
+  // Les tables regroupées par page d'impression
+  const pages = useMemo(() => {
+    const lots = [];
+    for (let i = 0; i < tables.length; i += parPage) {
+      lots.push(tables.slice(i, i + parPage));
+    }
+    return lots;
+  }, [tables, parPage]);
+
   if (chargement) return <div className="ecran centre"><p>Chargement…</p></div>;
 
   return (
@@ -88,24 +97,29 @@ export default function AdminQR() {
         </section>
       </div>
 
-      <div className={'planche planche-' + parPage}>
-        {tables.map((t) => (
-          <div key={t.id} className="fiche-qr">
-            <div className="fiche-tete">
-              <span className="fiche-marque">Bucolique · Blind Test</span>
-              <span className="fiche-numero">{t.numero}</span>
-              {t.zone && <span className="fiche-zone">{t.zone}</span>}
+      {/* Découpage explicite en pages : une grille continue laissait le
+          navigateur couper où il voulait, et le nombre par page n'était
+          qu'une illusion. */}
+      {pages.map((page, i) => (
+        <div key={i} className={'planche planche-' + parPage}>
+          {page.map((t) => (
+            <div key={t.id} className="fiche-qr">
+              <div className="fiche-tete">
+                <span className="fiche-marque">Bucolique · Blind Test</span>
+                <span className="fiche-numero">{t.numero}</span>
+                {t.zone && <span className="fiche-zone">{t.zone}</span>}
+              </div>
+              {images[t.id]
+                ? <img src={images[t.id]} alt={'QR table ' + t.numero} />
+                : <div className="qr-attente" />}
+              <p className="fiche-consigne">
+                Scanne pour commander<br />
+                <span>1 case = 1 € · carte de 10 € = 10 cases</span>
+              </p>
             </div>
-            {images[t.id]
-              ? <img src={images[t.id]} alt={'QR table ' + t.numero} />
-              : <div className="qr-attente" />}
-            <p className="fiche-consigne">
-              Scanne pour commander<br />
-              <span>1 case = 1 € · carte de 10 € = 10 cases</span>
-            </p>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ))}
     </div>
   );
 }
